@@ -375,7 +375,7 @@ app.post('/sms', (req, res) => {
     }).catch(err => console.error(err))
     
     // HELP //
-  } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 5).toLowerCase() === 'help@' || req.body.Body.replace(' ', '').replace("'", "").slice(0, 6).toLowerCase() === 'helpat') {
+  } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 5).toLowerCase() === 'help@') {
     req.session.command = 'help';
     textObj.address = req.body.Body.slice(5);
     if (!req.session.counter){
@@ -428,7 +428,7 @@ app.post('/sms', (req, res) => {
     }).catch(err => console.error(err))
 
     // HAVE //
-  } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 5).toLowerCase() === 'have@' || req.body.Body.replace(' ', '').replace("'", "").slice(0, 6).toLowerCase() === 'haveat') {
+  } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 5).toLowerCase() === 'have@') {
     req.session.command = 'have';
     textObj.address = req.body.Body.slice(5);
     if (!req.session.counter) {
@@ -481,7 +481,7 @@ app.post('/sms', (req, res) => {
     
 
     // NEED //
-  } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 5).toLowerCase() === 'need@' || req.body.Body.replace(' ', '').replace("'", "").slice(0, 6).toLowerCase() === 'needat') {
+  } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 5).toLowerCase() === 'need@') {
     req.session.command = "need";
     textObj.address = req.body.Body.slice(5);
     if (!req.session.counter) {
@@ -507,7 +507,7 @@ app.post('/sms', (req, res) => {
     }).catch(err => console.error(err))
 
     // OUT //
-  } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 4).toLowerCase() === 'out@' || req.body.Body.replace(' ', '').replace("'", "").slice(0, 5).toLowerCase() === 'outat') {
+  } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 4).toLowerCase() === 'out@') {
     req.session.command = "out";
     textObj.address = req.body.Body.slice(4);
     if (!req.session.counter) {
@@ -530,6 +530,26 @@ app.post('/sms', (req, res) => {
       res.send('done');
     }).catch(err => console.error(err));
 
+  } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 7).toLowerCase() === 'delete@') {
+    textObj.address = req.body.Body.slice(7);
+      return googleMapsClient.geocode({
+        address: textObj.address
+      }).asPromise().then((response) => {
+        const resultObj = response.json.results[0];
+        formatAddress = resultObj.formatted_address;
+        return db.pin.destroy({
+          where: {
+            help: true,
+            address: formatAddress
+          }
+        })
+      }).then(() => {
+      return client.messages.create({
+        from: '15043020292',
+        to: textObj.number,
+        body: 'Thank you. Your help pin has been removed.',
+      })
+      }).catch(err => console.error(err));
   } else {
     // SECOND MESSAGES AND INCORRECT MESSAGES GOES HERE //
     if (req.session.counter > 0) {
@@ -864,7 +884,7 @@ app.post('/sms', (req, res) => {
             return client.messages.create({
               from: '15043020292',
               to: textObj.number,
-              body: 'Thank you, your message has been added to the marker.',
+              body: 'Thank you, your message has been added to the marker. Please text "delete@Your-Address" when you have been helped.',
             })
           })
           .then(() => {
