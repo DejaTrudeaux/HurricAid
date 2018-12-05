@@ -19,7 +19,6 @@ import { EmailComponent } from './profile/components/email/email.component';
 import { PhoneComponent } from './profile/components/phone/phone.component';
 import { PasswordComponent } from './profile/components/password/password.component';
 import { ManageComponent } from './profile/components/manage/manage.component';
-import { RemovepinComponent } from './profile/components/removepin/removepin.component';
 import { HelppinComponent } from './helppin/helppin.component';
 import { HavepinComponent } from './havepin/havepin.component';
 import { HttpClientModule } from '@angular/common/http';
@@ -27,6 +26,7 @@ import { AgmCoreModule } from '@agm/core';
 import { UiService } from './service/ui.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { GooglePlacesDirective } from './google-places.directive';
 import {
   MatFormFieldModule,
   MatButtonModule,
@@ -36,6 +36,7 @@ import {
   MatRadioModule,
   MatDialogModule,
   MatIconModule,
+  MatAutocompleteModule,
 } from '@angular/material';
 
 @NgModule({
@@ -56,8 +57,8 @@ import {
     PasswordComponent,
     HelppinComponent,
     HavepinComponent,
-    RemovepinComponent,
     ManageComponent,
+    GooglePlacesDirective,
   ],
   imports: [
     CommonModule,
@@ -75,9 +76,11 @@ import {
     MatRadioModule,
     MatDialogModule,
     MatIconModule,
+    MatAutocompleteModule,
     ReactiveFormsModule,
     AgmCoreModule.forRoot({
-      apiKey: `${keys.googleMaps}`
+      apiKey: `${keys.googleMaps}`,
+      libraries: ['places']
     })
   ],
   entryComponents: [
@@ -88,7 +91,6 @@ import {
     PasswordComponent,
     HelppinComponent,
     HavepinComponent,
-    RemovepinComponent,
     ManageComponent,
   ],
   providers: [

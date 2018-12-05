@@ -335,7 +335,7 @@ app.post('/removePin', (req, res) => {
   });
 });
 
-app.get('/filterPinsBySupply', (req, res) => {
+app.post('/filterPinsBySupply', (req, res) => {
   const { supplyId } = req.body;
   db.supply_info.findAll({ where: { id_supply: supplyId }, raw:true }, (error) => {
     console.log('error finding supply: ', error);
@@ -353,6 +353,31 @@ app.get('/filterPinsBySupply', (req, res) => {
       setTimeout(() => {
         res.send(pinArr);
       }, 1000);
+  });
+});
+
+app.post('/goHelp', (req, res) => {
+  const { phoneId } = req.body;
+  db.phone.findOne({ where: { id: phoneId }, raw:true }, (error) => {
+    console.log('error finding phone: ', error);
+    res.status(500).send(error);
+  }).then((phone) => {
+    db.user.findOne({ where: { id_credential: req.session.credId }, raw:true }, (error) => {
+      console.log('error finding user: ', error);
+      res.status(500).send(error);
+    }).then((user) => {
+      db.phone.findOne({ where: { id: user.id_phone }, raw:true }, (error) => {
+        console.log('error finding phone: ', error);
+        res.status(500).send(error);
+      }).then((userPhone) => {
+        const { number } = phone;
+        client.messages.create({
+          from: '15043020292',
+          to: number,
+          body: `${user.name_first} ${user.name_last} is coming to help. You may reach them at ${userPhone.number}.`,
+        }).catch(err => console.error(err))
+      });
+    });
   });
 });
 

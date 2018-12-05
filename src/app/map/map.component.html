@@ -1,4 +1,12 @@
-<!-- <p style="text-align: center; color: aqua">Sir Maps-a-Lot</p> -->
+<br>
+<form>
+  <mat-form-field>
+    <mat-select [ngClass]="select" placeholder="Select Supply" [(ngModel)]="model.selectSupply" [ngModelOptions]="{standalone: true}">
+      <mat-option *ngFor="let supply of supplyOptions" [value]="supply.id">{{supply.type}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button mat-flat-button style="background-color: #3E7CB1; color: whitesmoke" (click)="sendSupply()">Filter</button>
+</form>
 <div class="map-full-card-content">
   <agm-map
     #gm
@@ -11,7 +19,8 @@
   >
     <div *ngFor="let m of markers;let i = index">
       <agm-marker
-        *ngIf="m.help"
+        *ngIf="m.help && loggedIn"
+        [animation]="'DROP'"
         [latitude]="m.latitude"
         [longitude]="m.longitude"
         [iconUrl]="helpUrl"
@@ -23,15 +32,16 @@
           </div>
           {{m.message}}
           <br>
-          <i>Address: </i> {{m.address}}
+          <i>Address: </i> <a href="https://www.google.com/maps/search/?api=1&query={{m.latitude}},{{m.longitude}}" target="_blank">{{m.address}}</a>
           <br>
           <i>Created: </i> {{m.createdAt}}
           <br>
+          <button (click)="goHelp(m.id_phone)">Go Help</button>
         </agm-info-window>
       </agm-marker>
-
       <agm-marker
         *ngIf="m.have"
+        [animation]="'DROP'"
         [latitude]="m.latitude"
         [longitude]="m.longitude"
         [iconUrl]="haveUrl"
@@ -43,7 +53,7 @@
           </div>
           {{m.message}}
           <br>
-          <i>Address: </i> {{m.address}}
+          <i>Address: </i> <a href="https://www.google.com/maps/search/?api=1&query={{m.latitude}},{{m.longitude}}" target="_blank">{{m.address}}</a>
           <br>
           <i>Created: </i> {{m.createdAt}}
           <br>
@@ -53,5 +63,6 @@
   </agm-map>
 </div>
 <br><br>
-<button mat-fab class="pin-box" style="background-color: rgb(206, 61, 61)" (click)="helpBox()" *ngIf="isLoggedIn$ | async">Help</button>
-<button mat-fab class="pin-box" style="background-color: #3E7CB1" color="primary" (click)="haveBox()" *ngIf="isLoggedIn$ | async">Have</button>
+<button mat-fab class="pin-box" style="background-color: rgb(206, 61, 61)" (click)="helpBox()" *ngIf="loggedIn">Help</button>
+<button mat-fab class="pin-box" style="background-color: #3E7CB1" color="primary" (click)="haveBox()" *ngIf="loggedIn">Have</button>
+<button mat-fab class="pin-box" style="background-color: #3E7CB1" color="primary" (click)="ngOnInit()">Reset</button>
