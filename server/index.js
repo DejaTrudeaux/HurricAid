@@ -641,12 +641,8 @@ app.post('/sms', (req, res) => {
                       }
                     })
                   })
-                  supplyStr.split(' ').forEach((cat) => {
-                    
-                    res(cat);
-                  })
-                  // console.log(supplyStr, 'THIS IS THE SUPPLY STRING, SHOULD BE 2 THINGS!!!!!!')
-                  // res(supplyStr);
+                  console.log(supplyStr, 'THIS IS THE SUPPLY STRING!!!!!!')
+                  res(supplyStr);
                 }
               }
             );
@@ -657,7 +653,7 @@ app.post('/sms', (req, res) => {
         if (message.split(' ').length > 3) {
           return analyzeCat(message);
         } else {
-          let longerMessage = "I want to offer : " + message + "to whoever needs it.";
+          let longerMessage = "I want to offer : " + message + ".";
           return analyzeCat(longerMessage);
         }
     }
@@ -697,37 +693,32 @@ app.post('/sms', (req, res) => {
           })
         }
         checkLength(textObj.message).then((tableName) => {
+          console.log(tableName, 'THIS IS THE TABLENAME!!!!!!!!!!!!!!!!!!!!!')
           if (tableName){
-            if (tableName === "Water" || textObj.message.toLowerCase().includes('water')){
-              addHaves('Water');
-            } 
-            if (tableName === "Food" || textObj.message.toLowerCase().includes('food')){
-              addHaves('Food');
-            } 
-            if (tableName === "Shelter" || textObj.message.toLowerCase().includes('shelter')) {
-              addHaves('Shelter');
-            } 
-            if (tableName === "Equipment"){
-              addHaves('Equipment');
-            } 
-            if (tableName === "Clothing" || textObj.message.toLowerCase().includes('clothing') || textObj.message.toLowerCase().includes('clothes')) {
-              addHaves('Clothing');
-            } 
-            if (tableName === "Power" || textObj.message.toLowerCase().includes('power' || textObj.message.toLowerCase().includes('electricity'))) {
-              addHaves('Power');
-            } 
-            if (tableName === "Pet") {
-              addHaves('Pet');
-            } 
-            if (tableName === "Transportation") {
-              addHaves('Transportation');
-            } 
-            if (tableName === "Health") {
-              addHaves('Health');
-            } 
-            if (tableName === "Household") {
-              addHaves('Household');
-            } 
+            tableName.split(' ').forEach((name) => {
+              console.log(name, 'THESE ARE THE MULTIPLE NAMES LORD JESUS')
+              if (name === "Water" || textObj.message.toLowerCase().includes('water')){
+                addHaves('Water');
+              } else if (name === "Food" || textObj.message.toLowerCase().includes('food')){
+                addHaves('Food');
+              } else if (name === "Shelter" || textObj.message.toLowerCase().includes('shelter')) {
+                addHaves('Shelter');
+              } else if (name === "Equipment"){
+                addHaves('Equipment');
+              } else if (name === "Clothing" || textObj.message.toLowerCase().includes('clothing') || textObj.message.toLowerCase().includes('clothes')) {
+                addHaves('Clothing');
+              } else if (name === "Power" || textObj.message.toLowerCase().includes('power' || textObj.message.toLowerCase().includes('electricity'))) {
+                addHaves('Power');
+              } else if (name === "Pet") {
+                addHaves('Pet');
+              } else if (name === "Transportation") {
+                addHaves('Transportation');
+              } else if (name === "Health") {
+                addHaves('Health');
+              } else if (name === "Household") {
+                addHaves('Household');
+              } 
+            })
           } 
           if (!tableName) {
             addHaves('Other');
