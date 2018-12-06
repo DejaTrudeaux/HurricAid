@@ -9,6 +9,7 @@ const fallback = require('express-history-api-fallback');
 const http = require('http');
 const port = process.env.port || 3000;
 const twilio = require('twilio');
+const moment = require('moment');
 // const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -357,7 +358,7 @@ app.post('/filterPinsBySupply', (req, res) => {
 });
 
 app.post('/goHelp', (req, res) => {
-  const { phoneId } = req.body;
+  const { phoneId, pinAddress } = req.body;
   db.phone.findOne({ where: { id: phoneId }, raw:true }, (error) => {
     console.log('error finding phone: ', error);
     res.status(500).send(error);
@@ -375,11 +376,45 @@ app.post('/goHelp', (req, res) => {
           from: '15043020292',
           to: number,
           body: `${user.name_first} ${user.name_last} is coming to help. You may reach them at ${userPhone.number}.`,
-        }).catch(err => console.error(err))
+        });
+        return userPhone.number;
+      }).then((num) => {
+        client.messages.create({
+          from: '15043020292',
+          to: num,
+          body: `Here is the address and phone number of the person you are helping: ${pinAddress} | ${phone.number}`,
+        });
       });
     });
   });
 });
+
+// reminder for help pins
+setInterval(() => {
+  db.pin.findAll({ where: { help: true, createdAt: { $lte: moment().subtract(5, 'days').toDate() } }, raw:true }).then((pins) => {
+    let phoneIdArr = [];
+    pins.forEach((pin) => {
+      phoneIdArr.push(pin.id_phone);
+    });
+    return phoneIdArr;
+  }).then((phoneIdArr) => {
+    let phoneNumArr = [];
+    return Promise.all(phoneIdArr.map((phoneId) => {
+      return db.phone.findOne({where: { id: phoneId }, raw:true }).then((phone) => {
+        phoneNumArr.push(phone.number);
+        return phoneNumArr;
+      });
+    }));
+  }).then((numArr) => {
+    numArr[0].forEach((num) => {
+      client.messages.create({
+        from: '15043020292',
+        to: num,
+        body: 'Hello, you currently have a help pin that is still posted. If you have already been helped, please text delete@Your-Address to remove your pin.',
+      }).catch(err => console.error(err))
+    });
+  });
+}, 600000);
 
 app.get('/logout', (req, res) => {
   req.session.destroy();
