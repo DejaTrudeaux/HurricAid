@@ -390,31 +390,31 @@ app.post('/goHelp', (req, res) => {
 });
 
 // reminder for help pins
-setInterval(() => {
-  db.pin.findAll({ where: { help: true, createdAt: { $lte: moment().subtract(5, 'days').toDate() } }, raw:true }).then((pins) => {
-    let phoneIdArr = [];
-    pins.forEach((pin) => {
-      phoneIdArr.push(pin.id_phone);
-    });
-    return phoneIdArr;
-  }).then((phoneIdArr) => {
-    let phoneNumArr = [];
-    return Promise.all(phoneIdArr.map((phoneId) => {
-      return db.phone.findOne({where: { id: phoneId }, raw:true }).then((phone) => {
-        phoneNumArr.push(phone.number);
-        return phoneNumArr;
-      });
-    }));
-  }).then((numArr) => {
-    numArr[0].forEach((num) => {
-      client.messages.create({
-        from: '15043020292',
-        to: num,
-        body: 'Hello, you currently have a help pin that is still posted. If you have already been helped, please text delete@Your-Address to remove your pin.',
-      }).catch(err => console.error(err))
-    });
-  });
-}, 600000);
+// setInterval(() => {
+//   db.pin.findAll({ where: { help: true, createdAt: { $lte: moment().subtract(5, 'days').toDate() } }, raw:true }).then((pins) => {
+//     let phoneIdArr = [];
+//     pins.forEach((pin) => {
+//       phoneIdArr.push(pin.id_phone);
+//     });
+//     return phoneIdArr;
+//   }).then((phoneIdArr) => {
+//     let phoneNumArr = [];
+//     return Promise.all(phoneIdArr.map((phoneId) => {
+//       return db.phone.findOne({where: { id: phoneId }, raw:true }).then((phone) => {
+//         phoneNumArr.push(phone.number);
+//         return phoneNumArr;
+//       });
+//     }));
+//   }).then((numArr) => {
+//     numArr[0].forEach((num) => {
+//       client.messages.create({
+//         from: '15043020292',
+//         to: num,
+//         body: 'Hello, you currently have a help pin that is still posted. If you have already been helped, please text delete@Your-Address to remove your pin.',
+//       }).catch(err => console.error(err))
+//     });
+//   });
+// }, 600000);
 
 app.get('/logout', (req, res) => {
   req.session.destroy();
@@ -630,17 +630,23 @@ app.post('/sms', (req, res) => {
                 if (err) {
                   console.error(err);
                 } else {
+                  console.log(response.categories, 'THESE ARE THE RESPONSE CATEGORIES!!!!!!!!!');
                   response.categories.map((result) => {
                     catStr += result.label;
                   });
                   Object.values(watsonCats.watsonCategories).forEach((category) => {
                     category.keywords.forEach((keyword) => {
                       if (catStr.split('/').includes(keyword)){
-                        supplyStr = category.table;
+                        supplyStr += ' ' + category.table;
                       }
                     })
                   })
-                  res(supplyStr);
+                  supplyStr.split(' ').forEach((cat) => {
+                    
+                    res(cat);
+                  })
+                  // console.log(supplyStr, 'THIS IS THE SUPPLY STRING, SHOULD BE 2 THINGS!!!!!!')
+                  // res(supplyStr);
                 }
               }
             );
@@ -687,37 +693,43 @@ app.post('/sms', (req, res) => {
               req.session.pinId = null;
             }).catch((err) => {
               console.error(err);
-              // this is meant to send to a user if they type less than 3 words, but it is not working
-              // return client.messages.create({
-              //   from: '15043020292',
-              //   to: textObj.number,
-              //   body: 'We didn\'t understand your text message. Please describe your offering in 3 words.',
-              // })
             })
           })
         }
         checkLength(textObj.message).then((tableName) => {
-          if (tableName === "Water" || textObj.message.toLowerCase().includes('water')){
-            addHaves('Water');
-          } else if (tableName === "Food" || textObj.message.toLowerCase().includes('food')){
-            addHaves('Food');
-          } else if (tableName === "Shelter" || textObj.message.toLowerCase().includes('shelter')) {
-            addHaves('Shelter');
-          } else if (tableName === "Equipment"){
-            addHaves('Equipment');
-          } else if (tableName === "Clothing" || textObj.message.toLowerCase().includes('clothing') || textObj.message.toLowerCase().includes('clothes')) {
-            addHaves('Clothing');
-          } else if (tableName === "Power" || textObj.message.toLowerCase().includes('power' || textObj.message.toLowerCase().includes('electricity'))) {
-            addHaves('Power');
-          } else if (tableName === "Pet") {
-            addHaves('Pet');
-          } else if (tableName === "Transportation") {
-            addHaves('Transportation');
-          } else if (tableName === "Health") {
-            addHaves('Health');
-          } else if (tableName === "Household") {
-            addHaves('Household');
-          } else {
+          if (tableName){
+            if (tableName === "Water" || textObj.message.toLowerCase().includes('water')){
+              addHaves('Water');
+            } 
+            if (tableName === "Food" || textObj.message.toLowerCase().includes('food')){
+              addHaves('Food');
+            } 
+            if (tableName === "Shelter" || textObj.message.toLowerCase().includes('shelter')) {
+              addHaves('Shelter');
+            } 
+            if (tableName === "Equipment"){
+              addHaves('Equipment');
+            } 
+            if (tableName === "Clothing" || textObj.message.toLowerCase().includes('clothing') || textObj.message.toLowerCase().includes('clothes')) {
+              addHaves('Clothing');
+            } 
+            if (tableName === "Power" || textObj.message.toLowerCase().includes('power' || textObj.message.toLowerCase().includes('electricity'))) {
+              addHaves('Power');
+            } 
+            if (tableName === "Pet") {
+              addHaves('Pet');
+            } 
+            if (tableName === "Transportation") {
+              addHaves('Transportation');
+            } 
+            if (tableName === "Health") {
+              addHaves('Health');
+            } 
+            if (tableName === "Household") {
+              addHaves('Household');
+            } 
+          } 
+          if (!tableName) {
             addHaves('Other');
           }
         })
