@@ -633,9 +633,10 @@ app.post('/sms', (req, res) => {
                   response.categories.map((result) => {
                     catStr += result.label;
                   });
+                  console.log(catStr, 'this is the category string!!!!!!!!!')
                   Object.values(watsonCats.watsonCategories).forEach((category) => {
                     category.keywords.forEach((keyword) => {
-                      if (catStr.split('/').includes(keyword)){
+                      if (catStr.replace('/', ' ').includes(keyword)){
                         supplyStr += ' ' + category.table;
                       }
                     })
@@ -902,27 +903,32 @@ app.post('/sms', (req, res) => {
           })
         }
         checkLength(textObj.message).then((tableName) => {
-          if (tableName === 'Water' || textObj.message.toLowerCase().includes('water')){
-            outFunc('Water');
-          } else if (tableName === "Food" || textObj.message.toLowerCase().includes('food')) {
-            outFunc('Food');
-          } else if (tableName === "Shelter" || textObj.message.toLowerCase().includes('shelter')) {
-            outFunc('Shelter');
-          } else if (tableName === "Equipment") {
-            outFunc('Equipment');
-          } else if (tableName === "Clothing" || textObj.message.toLowerCase().includes('clothing' || textObj.message.toLowerCase().includes('clothes'))) {
-            outFunc('Clothing');
-          } else if (tableName === "Power" || textObj.message.toLowerCase().includes('power') || textObj.message.toLowerCase().includes('electricity')) {
-            outFunc('Power');
-          } else if (tableName === "Pet") {
-            outFunc('Pet');
-          } else if (tableName === "Transportation") {
-            outFunc('Transportation');
-          } else if (tableName === "Health") {
-            outFunc('Health');
-          } else if (tableName === "Household") {
-            outFunc('Household');
-          } else {
+          if (tableName){
+            tableName.split(' ').forEach((name) => {
+              if (name === 'Water' || textObj.message.toLowerCase().includes('water')){
+                outFunc('Water');
+              } else if (name === "Food" || textObj.message.toLowerCase().includes('food')) {
+                outFunc('Food');
+              } else if (name === "Shelter" || textObj.message.toLowerCase().includes('shelter')) {
+                outFunc('Shelter');
+              } else if (name === "Equipment") {
+                outFunc('Equipment');
+              } else if (name === "Clothing" || textObj.message.toLowerCase().includes('clothing' || textObj.message.toLowerCase().includes('clothes'))) {
+                outFunc('Clothing');
+              } else if (name === "Power" || textObj.message.toLowerCase().includes('power') || textObj.message.toLowerCase().includes('electricity')) {
+                outFunc('Power');
+              } else if (name === "Pet") {
+                outFunc('Pet');
+              } else if (name === "Transportation") {
+                outFunc('Transportation');
+              } else if (name === "Health") {
+                outFunc('Health');
+              } else if (name === "Household") {
+                outFunc('Household');
+              } 
+            })
+          }
+          if (!tableName) {
             outFunc('Other');
           }
         })
