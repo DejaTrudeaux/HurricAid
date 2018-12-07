@@ -885,12 +885,20 @@ app.post('/sms', (req, res) => {
                 })
               })
               .then((pinId) => {
-                  return db.pin.destroy({
-                    where: {
-                      id: pinId,
-                      have: true,
-                    }
-                  })
+                return db.supply_info.findOne({
+                  where: {
+                    id_pin: pinId,
+                  }
+                }).then((row) => {
+                  if (!row){
+                    return db.pin.destroy({
+                      where: {
+                        id: pinId,
+                        have: true,
+                      }
+                    })
+                  }
+                })
               })
             })
             .then(() => {
