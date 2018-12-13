@@ -8,11 +8,13 @@ const session = require('express-session');
 const fallback = require('express-history-api-fallback');
 const http = require('http');
 const port = process.env.port || 8080;
-const twilio = require('twilio');
 const moment = require('moment');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+
+const twilio = require('twilio');
 const client = new twilio(config.config.accountSid, config.config.authToken);
+
 const fs = require('fs');
 const NaturalLanguageUnderstandingV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
 const googleMapsClient = require('@google/maps').createClient({
@@ -25,6 +27,7 @@ const nlu = new NaturalLanguageUnderstandingV1({
   url: 'https://gateway-tok.watsonplatform.net/natural-language-understanding/api/'
 });
 const watsonCats = require('../watson/keywords');
+var _ = require('underscore');
 
 
 const app = express();
@@ -436,7 +439,7 @@ app.post('/sms', (req, res) => {
     // HELP //
   } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 5).toLowerCase() === 'help@') {
     req.session.command = 'help';
-    textObj.address = req.body.Body.slice(5);
+    textObj.address = req.body.Body.replace(' ', '').replace("'", "").slice(5);
     if (!req.session.counter){
       req.session.counter = smsCount;
     } 
@@ -489,7 +492,7 @@ app.post('/sms', (req, res) => {
     // HAVE //
   } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 5).toLowerCase() === 'have@') {
     req.session.command = 'have';
-    textObj.address = req.body.Body.slice(5);
+    textObj.address = req.body.Body.replace(' ', '').replace("'", "").slice(5);
     if (!req.session.counter) {
       req.session.counter = smsCount;
     }
@@ -542,7 +545,7 @@ app.post('/sms', (req, res) => {
     // NEED //
   } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 5).toLowerCase() === 'need@') {
     req.session.command = "need";
-    textObj.address = req.body.Body.slice(5);
+    textObj.address = req.body.Body.replace(' ', '').replace("'", "").slice(5);
     if (!req.session.counter) {
       req.session.counter = smsCount;
     }
@@ -568,7 +571,7 @@ app.post('/sms', (req, res) => {
     // OUT //
   } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 4).toLowerCase() === 'out@') {
     req.session.command = "out";
-    textObj.address = req.body.Body.slice(4);
+    textObj.address = req.body.Body.replace(' ', '').replace("'", "").slice(4);
     if (!req.session.counter) {
       req.session.counter = smsCount;
     }
@@ -590,7 +593,7 @@ app.post('/sms', (req, res) => {
     }).catch(err => console.error(err));
 
   } else if (req.body.Body.replace(' ', '').replace("'", "").slice(0, 7).toLowerCase() === 'delete@') {
-    textObj.address = req.body.Body.slice(7);
+    textObj.address = req.body.Body.replace(' ', '').replace("'", "").slice(7);
       return googleMapsClient.geocode({
         address: textObj.address
       }).asPromise().then((response) => {
@@ -653,7 +656,7 @@ app.post('/sms', (req, res) => {
         if (message.split(' ').length > 3) {
           return analyzeCat(message);
         } else {
-          let longerMessage = "I want to offer : " + message + ".";
+          let longerMessage = message + " is what I have.";
           return analyzeCat(longerMessage);
         }
     }
@@ -695,10 +698,9 @@ app.post('/sms', (req, res) => {
         checkLength(textObj.message).then((tableName) => {
           console.log(tableName, 'THIS IS THE TABLENAME!!!!!!!!!!!!!!!!!!!!!')
           if (tableName){
-            tableName.split(' ').forEach((name) => {
-              console.log(name, 'THESE ARE THE MULTIPLE NAMES LORD JESUS')
+            _.uniq(tableName.split(' ')).forEach((name) => {
               if (name === "Water" || textObj.message.toLowerCase().includes('water')){
-                addHaves('Water');
+                return addHaves('Water');
               } else if (name === "Food" || textObj.message.toLowerCase().includes('food')){
                 addHaves('Food');
               } else if (name === "Shelter" || textObj.message.toLowerCase().includes('shelter')) {
