@@ -9,7 +9,7 @@ const fallback = require('express-history-api-fallback');
 const http = require('http');
 const port = process.env.port || 8080;
 const moment = require('moment');
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser'); 
 const cookieParser = require('cookie-parser');
 
 const twilio = require('twilio');
@@ -393,7 +393,11 @@ app.post('/goHelp', (req, res) => {
 
 // reminder for help pins
 // setInterval(() => {
+<<<<<<< HEAD
 //   db.pin.findAll({ where: { help: true, createdAt: { $lte: moment().subtract(5, 'days').toDate() } }, raw:true }).then((pins) => {
+=======
+//   db.pin.findAll({ where: { help: true, createdAt: { $lte: moment().subtract(1, 'days').toDate() } }, raw:true }).then((pins) => {
+>>>>>>> 8a42502ca9bc9c340229fa996346db3839e94658
 //     let phoneIdArr = [];
 //     pins.forEach((pin) => {
 //       phoneIdArr.push(pin.id_phone);
@@ -408,13 +412,24 @@ app.post('/goHelp', (req, res) => {
 //       });
 //     }));
 //   }).then((numArr) => {
+<<<<<<< HEAD
 //     numArr[0].forEach((num) => {
+=======
+//     if(!numArr.length){
+//       return;
+//     } else {
+//       numArr[0].forEach((num) => {
+>>>>>>> 8a42502ca9bc9c340229fa996346db3839e94658
 //       client.messages.create({
 //         from: '15043020292',
 //         to: num,
 //         body: 'Hello, you currently have a help pin that is still posted. If you have already been helped, please text delete@Your-Address to remove your pin.',
 //       }).catch(err => console.error(err))
 //     });
+<<<<<<< HEAD
+=======
+//     }
+>>>>>>> 8a42502ca9bc9c340229fa996346db3839e94658
 //   });
 // }, 600000);
 
@@ -974,7 +989,7 @@ app.post('/sms', (req, res) => {
       return client.messages.create({
         from: '15043020292',
         to: textObj.number,
-        body: 'Error: We don\'t know what you mean. Please enter one of the following: \nHelp@Your-Address, \nHave@Your-Address, \nNeed@Your-Address',
+        body: 'Sorry, we didn\'t understand your message. Please enter one of the following: \nHelp@Your-Address, \nHave@Your-Address, \nNeed@Your-Address',
       }).then(() => {
         res.send('done');
       }).catch(err => console.error(err))
